@@ -27,7 +27,7 @@ jobs:
             ${{ runner.os }}-pip-
 
       - name: Install dependencies
-        run: pip install google-genai google-auth google-auth-oauthlib google-api-python-client pillow
+        run: pip install google-genai google-auth google-auth-oauthlib google-api-python-client pillow python-dotenv tqdm==4.67.3
 
       - name: Run style transform
         env:
