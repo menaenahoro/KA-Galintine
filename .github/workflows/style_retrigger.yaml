@@ -1,0 +1,25 @@
+name: KA Galintine - Retrigger
+
+on:
+  workflow_run:
+    workflows: ["KA Galintine - Style Transform"]  # watches the MAIN workflow
+    types:
+      - completed                                   # fires every time it finishes
+
+jobs:
+  retrigger:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger next run of Style Transform
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run galantine.yaml \
+            --repo ${{ github.repository }}
+
+      - name: Delete this retrigger run (keep history clean)
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh run delete ${{ github.run_id }} --repo ${{ github.repository }}
