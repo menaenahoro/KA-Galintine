@@ -49,3 +49,9 @@ jobs:
         run: |
           gh run delete ${{ github.event.workflow_run.id }} \
             --repo ${{ github.repository }} || echo "Could not delete run — skipping"
+
+      - name: Delete this workflow run (keep history clean)
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh run delete ${{ github.run_id }} --repo ${{ github.repository }} || echo "Skipping delete"
