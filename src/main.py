@@ -233,7 +233,7 @@ def get_google_credentials():
             print("\n" + "=" * 60)
             print("✅ Token refreshed! Save this as your GOOGLE_TOKEN_JSON env var:")
             print("=" * 60)
-            print(creds.to_json())
+            # print(creds.to_json())
             print("=" * 60 + "\n")
             return creds
         except RefreshError as e:
