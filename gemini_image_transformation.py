@@ -57,7 +57,7 @@ try:
     from google_auth_oauthlib.flow import InstalledAppFlow
     from PIL import Image
 except ImportError:
-    print("Installing required packages...")
+    # print("Installing required packages...")
     os.system(f"{sys.executable} -m pip install {' '.join(REQUIRED)} --quiet")
     from google import genai
     from google.genai import types
@@ -109,12 +109,12 @@ def get_drive_service(credentials_file: str = "credentials.json", token_file: st
             creds.refresh(Request())
         else:
             if not os.path.exists(credentials_file):
-                print(f"\n❌  {credentials_file} not found!")
-                print("    Follow the SETUP instructions at the top of this script.")
-                print("    Short version:")
-                print("    1. https://console.cloud.google.com → Enable Drive API")
-                print("    2. Create OAuth 2.0 Desktop credentials → Download JSON")
-                print(f"    3. Save as '{credentials_file}' next to this script\n")
+                # print(f"\n❌  {credentials_file} not found!")
+                # print("    Follow the SETUP instructions at the top of this script.")
+                # print("    Short version:")
+                # print("    1. https://console.cloud.google.com → Enable Drive API")
+                # print("    2. Create OAuth 2.0 Desktop credentials → Download JSON")
+                # print(f"    3. Save as '{credentials_file}' next to this script\n")
                 sys.exit(1)
             flow = InstalledAppFlow.from_client_secrets_file(credentials_file, SCOPES)
             creds = flow.run_local_server(port=0)
@@ -374,9 +374,9 @@ Environment:
     # ── Gemini client ─────────────────────────────────────────────────────────
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
-        print("\n❌  GEMINI_API_KEY not set!")
-        print("    Get a free key at: https://aistudio.google.com/app/apikey")
-        print("    Then run: export GEMINI_API_KEY='your-key-here'\n")
+        # print("\n❌  GEMINI_API_KEY not set!")
+        # print("    Get a free key at: https://aistudio.google.com/app/apikey")
+        # print("    Then run: export GEMINI_API_KEY='your-key-here'\n")
         sys.exit(1)
     gemini_client = genai.Client(api_key=api_key)
 
@@ -398,7 +398,7 @@ Environment:
     log.info(f"Found {len(images)} image(s) to process")
     log.info(f"Prompt: \"{args.prompt[:80]}{'...' if len(args.prompt) > 80 else ''}\"")
     log.info(f"Transformed files will be uploaded with suffix '{args.suffix}'")
-    print()
+    # print()
 
     # ── Process ───────────────────────────────────────────────────────────────
     ok = 0
@@ -410,10 +410,10 @@ Environment:
             args.prompt, args.suffix, args.skip_existing
         ):
             ok += 1
-        print()
+        # print()
 
     # ── Summary ───────────────────────────────────────────────────────────────
-    print("=" * 52)
+    # print("=" * 52)
     log.info(f"Done -- {ok}/{len(images)} image(s) transformed and uploaded to Drive.")
     if ok < len(images):
         log.warning(f"{len(images) - ok} failed. Re-run with --skip-existing to retry only failed ones.")
