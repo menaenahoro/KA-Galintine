@@ -2,12 +2,21 @@ name: KA Galintine - Style Transform
 
 on:
   schedule:
-    - cron: '*/5 * * * *'   # every 5 minutes
-  workflow_dispatch:         # also allow manual trigger from GitHub UI
+    - cron: '*/5 * * * *'  # GitHub best-effort trigger — may be delayed
+  workflow_dispatch:        # manual trigger from GitHub UI
+  workflow_run:             # re-triggers itself after each run (reliable 5-min loop)
+    workflows: ["KA Galintine - Style Transform"]
+    types:
+      - completed
 
 jobs:
   transform:
     runs-on: ubuntu-latest
+
+    # Prevent multiple runs stacking up if a previous one is still going
+    concurrency:
+      group: style-transform
+      cancel-in-progress: false   # let the current run finish, queue the next
 
     steps:
       - name: Checkout repository
@@ -35,7 +44,6 @@ jobs:
           GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
           GOOGLE_TOKEN_JSON: ${{ secrets.GOOGLE_TOKEN_JSON }}
         run: python src/main.py
-        
       # - name: Delete this workflow run
       #   if: always()   # runs even if previous steps failed
       #   env:
