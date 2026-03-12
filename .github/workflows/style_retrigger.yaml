@@ -1,57 +1,57 @@
-name: KA Galintine - Retrigger
+# name: KA Galintine - Retrigger
 
-on:
-  workflow_run:
-    workflows: ["KA Galintine - Style Transform"]
-    types:
-      - completed
+# on:
+#   workflow_run:
+#     workflows: ["KA Galintine - Style Transform"]
+#     types:
+#       - completed
 
-jobs:
-  retrigger:
-    runs-on: ubuntu-latest
+# jobs:
+#   retrigger:
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Check if within business hours (8am-5pm WAT, Mon-Fri)
-        id: check_hours
-        run: |
-          # Get current UTC hour and day (WAT = UTC+1)
-          HOUR_UTC=$(date -u +%H)
-          HOUR_WAT=$(( (10#$HOUR_UTC + 1) % 24 ))
-          DAY=$(date -u +%u)   # 1=Mon, 7=Sun
+#     steps:
+#       - name: Check if within business hours (8am-5pm WAT, Mon-Fri)
+#         id: check_hours
+#         run: |
+#           # Get current UTC hour and day (WAT = UTC+1)
+#           HOUR_UTC=$(date -u +%H)
+#           HOUR_WAT=$(( (10#$HOUR_UTC + 1) % 24 ))
+#           DAY=$(date -u +%u)   # 1=Mon, 7=Sun
 
-          echo "UTC hour: $HOUR_UTC | WAT hour: $HOUR_WAT | Day: $DAY"
+#           echo "UTC hour: $HOUR_UTC | WAT hour: $HOUR_WAT | Day: $DAY"
 
-          # Within window: Mon-Fri (1-5), 8am-5pm WAT (hour 8-16 inclusive)
-          if [[ $DAY -ge 1 && $DAY -le 5 && $HOUR_WAT -ge 8 && $HOUR_WAT -le 16 ]]; then
-            echo "in_hours=true" >> $GITHUB_OUTPUT
-            echo "✅ Within business hours — will retrigger"
-          else
-            echo "in_hours=false" >> $GITHUB_OUTPUT
-            echo "⏸️  Outside business hours — skipping retrigger"
-          fi
+#           # Within window: Mon-Fri (1-5), 8am-5pm WAT (hour 8-16 inclusive)
+#           if [[ $DAY -ge 1 && $DAY -le 5 && $HOUR_WAT -ge 8 && $HOUR_WAT -le 16 ]]; then
+#             echo "in_hours=true" >> $GITHUB_OUTPUT
+#             echo "✅ Within business hours — will retrigger"
+#           else
+#             echo "in_hours=false" >> $GITHUB_OUTPUT
+#             echo "⏸️  Outside business hours — skipping retrigger"
+#           fi
 
-      - name: Wait 5 minutes before next run
-        if: steps.check_hours.outputs.in_hours == 'true'
-        run: sleep 300
+#       - name: Wait 5 minutes before next run
+#         if: steps.check_hours.outputs.in_hours == 'true'
+#         run: sleep 300
 
-      - name: Trigger next run of Style Transform
-        if: steps.check_hours.outputs.in_hours == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
-        run: |
-          gh workflow run galantine.yaml \
-            --repo ${{ github.repository }}
+#       - name: Trigger next run of Style Transform
+#         if: steps.check_hours.outputs.in_hours == 'true'
+#         env:
+#           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+#         run: |
+#           gh workflow run galantine.yaml \
+#             --repo ${{ github.repository }}
 
-      - name: Delete the completed main workflow run
-        if: always()
-        env:
-          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
-        run: |
-          gh run delete ${{ github.event.workflow_run.id }} \
-            --repo ${{ github.repository }} || echo "Could not delete run — skipping"
+#       - name: Delete the completed main workflow run
+#         if: always()
+#         env:
+#           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+#         run: |
+#           gh run delete ${{ github.event.workflow_run.id }} \
+#             --repo ${{ github.repository }} || echo "Could not delete run — skipping"
 
-      - name: Delete this workflow run (keep history clean)
-        if: always()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh run delete ${{ github.run_id }} --repo ${{ github.repository }} || echo "Skipping delete"
+#       - name: Delete this workflow run (keep history clean)
+#         if: always()
+#         env:
+#           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#         run: gh run delete ${{ github.run_id }} --repo ${{ github.repository }} || echo "Skipping delete"
